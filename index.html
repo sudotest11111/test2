@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS クラウドプラクティショナー模擬試験</title>
+  <!-- Bootstrap CSSのみ -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+</head>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<body class="d-flex flex-column vh-100 m-0">
+
+  <!-- コンテンツ全体 -->
+  <div class="container-fluid d-flex flex-column h-100 p-0">
+
+    <!-- タイトルコンテナ -->
+    <div id="title-container" class="bg-light text-center py-2 shadow-sm" style="position: sticky; top: 0; z-index: 1020;">
+      <h1 id="title" class="h5 m-0 text-truncate">
+        AWS クラウドプラクティショナー模擬試験
+      </h1>
+    </div>
+
+    <!-- 進捗バーコンテナ -->
+    <div id="status-container" class="d-flex flex-column gap-1 px-3 py-2 bg-white" style="position: sticky; top: 40px; z-index: 1010;">
+      <!-- 進捗バー（淡い紫） -->
+      <div class="progress position-relative ">
+        <div class="progress-bar" id="question-progress-bar" style="background-color: #e5c6f3;"></div>
+        <div class="position-absolute top-50 start-50 translate-middle text-dark fw-bold" id="question-progress-text">
+          0%
+        </div>
+      </div>
+
+      <!-- 正解率バー（淡い緑） -->
+      <div class="progress position-relative ">
+        <div class="progress-bar" id="correct-rate-progress-bar" style="background-color: var(--bs-success-bg-subtle);"></div>
+        <div class="position-absolute top-50 start-50 translate-middle text-dark fw-bold" id="correct-rate-progress-text">
+          0%
+        </div>
+      </div>
+
+      <!-- 時間バー（進捗: 通常 -> 淡い青 / 10分前 -> 淡い黄色 / 制限時間到達 -> 淡い赤） -->
+      <div class="progress position-relative ">
+        <div class="progress-bar" id="timer-progress-bar" style="background-color: var(--bs-primary-bg-subtle);"></div>
+        <div class="position-absolute top-50 start-50 translate-middle text-dark fw-bold" id="timer-progress-text">
+          00:00
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 問題表示コンテナ -->
+    <div id="quiz-container" class="flex-grow-1 overflow-auto px-3">
+
+      <div id="quiz-result-container" class="text-start">
+        <div id="question-container"></div>
+        <div id="explanation-container"></div>
+      </div>
+
+      <div id="result-container" class="text-center" style="display:none;">
+
+      </div>
+    </div>
+
+    <!-- 操作ボタンコンテナ -->
+    <div id="operation-container" class="text-center bg-white py-3 sticky-bottom shadow-lg">
+      <button id="submit-answer" class="btn btn-primary w-75 mx-auto" onclick="submitAnswer()">回答</button>
+      <button id="next-button" class="btn btn-primary w-75 mx-auto" onclick="nextQuestion()" style="display:none;">次の問題</button>
+      <button id="restart-button" class="btn btn-success w-75 mx-auto" onclick="restartTest()" style="display:none;">最初から</button>
+    </div>
+
+  </div>
+
+  <!-- モーダル本体 -->
+  <div class="modal fade" id="incorrectModal" tabindex="-1" aria-labelledby="incorrectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="incorrectModalLabel">不正解の問題</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body" id="incorrectQuestionsContainer">
+          <!-- JavaScriptで不正解の問題を挿入 -->
+        </div>
+        <div class="modal-footer p-0">
+          <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="border-radius: 0;">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 必要なJavaScriptファイル -->
+  <script src="quizData.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
