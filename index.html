@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ひらがな発音チェック</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 2em;
+    }
+    .letter {
+      font-size: 8rem;
+      margin: 1em;
+    }
+    .result {
+      font-size: 2rem;
+      margin-top: 1em;
+      height: 2em;
+    }
+    .mode-toggle {
+      margin: 1em;
+    }
+    button {
+      font-size: 1.5rem;
+      padding: 1em 2em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="mode-toggle">
+    <label><input type="radio" name="mode" value="1" checked onchange="changeMode(1)">1文字モード</label>
+    <label><input type="radio" name="mode" value="2" onchange="changeMode(2)">2文字モード</label>
+  </div>
+  <div class="letter" id="targetLetter">あ</div>
+  <button onclick="startRecognition()">マイクでこたえる</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    const hiragana = [
+      "あ", "い", "う", "え", "お",
+      "か", "き", "く", "け", "こ",
+      "さ", "し", "す", "せ", "そ",
+      "た", "ち", "つ", "て", "と",
+      "な", "に", "ぬ", "ね", "の",
+      "は", "ひ", "ふ", "へ", "ほ",
+      "ま", "み", "む", "め", "も",
+      "や", "ゆ", "よ",
+      "ら", "り", "る", "れ", "ろ",
+      "わ", "を", "ん"
+    ];
+
+    const twoLetterWords = [
+      "いぬ", "ねこ", "さる", "うま", "たこ", "かに", "とら", "しか", "かめ", "すし",
+      "おに", "まめ", "もち", "はな", "ゆき", "くも", "あめ", "かぜ", "そら", "やま",
+      "かわ", "みず", "いけ", "うみ", "しま", "もり", "たに", "はし", "みち", "いえ",
+      "やね", "まど", "へや", "いす", "つくえ", "ほん", "でん", "くつ", "ぼう", "けん",
+      "たま", "かさ", "ふく", "まき", "りん", "かど", "くち", "めがね", "くび", "てあし",
+      "ゆび", "みみ", "はは", "ちち", "あに", "あね", "こえ", "うた", "おと", "しお",
+      "さけ", "おちゃ", "おかし", "りんご", "みかん", "ばなな", "もも", "なし", "すいか", "めろん",
+      "ぶどう", "おにぎり", "ごはん", "ぱん", "たまご", "さかな", "にく", "やさい", "にんじん", "だいこん",
+      "とまと", "きゅうり", "なす", "じゃが", "れんこん", "こめ", "むし", "とり", "うし", "ぶた"
+    ];
+
+    let target = "あ";
+    let mode = 1;
+    let timeoutId = null;
+
+    function getRandomLetter() {
+      return hiragana[Math.floor(Math.random() * hiragana.length)];
+    }
+
+    function getRandomWord() {
+      return twoLetterWords[Math.floor(Math.random() * twoLetterWords.length)];
+    }
+
+    function setNewTarget() {
+      target = mode === 1 ? getRandomLetter() : getRandomWord();
+      document.getElementById("targetLetter").textContent = target;
+    }
+
+    function changeMode(newMode) {
+      mode = newMode;
+      setNewTarget();
+    }
+
+    function speak(text, callback) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      if (callback) {
+        utterance.onend = callback;
+      }
+      speechSynthesis.speak(utterance);
+    }
+
+    function startRecognition() {
+      const resultEl = document.getElementById("result");
+      resultEl.textContent = "聞き取り中...";
+      resultEl.style.color = "black";
+
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      timeoutId = setTimeout(() => {
+        recognition.abort();
+        resultEl.textContent = `じかんぎれ！（正解は: ${target}）`;
+        resultEl.style.color = "orange";
+        speak(`じかんぎれだよ。せいかいは、${target}。`, () => {
+          setNewTarget();
+        });
+      }, 7000);
+
+      recognition.onresult = (event) => {
+        clearTimeout(timeoutId);
+        const spoken = event.results[0][0].transcript.trim();
+        if (spoken === target) {
+          resultEl.textContent = "せいかい！";
+          resultEl.style.color = "green";
+        } else {
+          resultEl.textContent = `ざんねん（言ったの: ${spoken}）`;
+          resultEl.style.color = "red";
+        }
+        speak(target, () => {
+          setNewTarget();
+        });
+      };
+
+      recognition.onerror = (event) => {
+        clearTimeout(timeoutId);
+        resultEl.textContent = `エラー: ${event.error}`;
+        resultEl.style.color = "red";
+      };
+
+      recognition.start();
+    }
+
+    setNewTarget();
+  </script>
+</body>
+</html>
